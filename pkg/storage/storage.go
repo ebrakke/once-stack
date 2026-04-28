@@ -7,12 +7,20 @@ import (
 	"path/filepath"
 )
 
-// Dir returns the ONCE storage directory (default /storage).
+// Dir returns the effective storage root directory.
+//
+// Priority:
+//   1. STORAGE_DIR environment variable (explicit override)
+//   2. /storage if it already exists (ONCE/Docker mounted volume)
+//   3. ./data as a local dev fallback
 func Dir() string {
 	if d := os.Getenv("STORAGE_DIR"); d != "" {
 		return d
 	}
-	return "/storage"
+	if fi, err := os.Stat("/storage"); err == nil && fi.IsDir() {
+		return "/storage"
+	}
+	return "data"
 }
 
 // OpenDir ensures the app's named subdirectory exists under the storage root

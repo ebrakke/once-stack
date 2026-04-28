@@ -39,9 +39,9 @@ Every app must satisfy these requirements to work with the ONCE installer.
 
 | Requirement | How we do it |
 |-------------|--------------|
-| Serves HTTP on **port 80** | `pkg/server` binds `:80` by default; override with `PORT` env var |
+| Serves HTTP on **port 80** | `pkg/server` binds `:80` in Docker (when `/storage` exists), `:8080` locally; override with `PORT` env var |
 | **Health check** at `/up` returning success | `pkg/server.New()` automatically mounts `pkg/health.Handler()` at `GET /up` |
-| Keeps persistent data in **`/storage`** | `pkg/storage.OpenDir("appname")` returns `/storage/appname` (or under `STORAGE_DIR`) |
+| Keeps persistent data in **`/storage`** | `pkg/storage.OpenDir("appname")` returns `/storage/appname` in Docker, `./data/appname` locally; override with `STORAGE_DIR` |
 | Packaged as a **Docker container** | `build/Dockerfile` — multi-stage, static binary, Alpine runtime |
 | **Non-root user** | Dockerfile creates `appuser` (UID 1000) |
 
@@ -119,7 +119,7 @@ Use the standard library `log/slog`. Prefer structured logging (`logger.Info`, `
 
 ### Storage
 
-Always call `storage.OpenDir(appName)` before doing any filesystem I/O. This ensures the directory exists under `/storage/<app>` (or under `STORAGE_DIR` if set for local dev).
+Always call `storage.OpenDir(appName)` before doing any filesystem I/O. This ensures the directory exists under `/storage/<app>` in Docker or `./data/<app>` locally (override with `STORAGE_DIR`).
 
 ### Graceful Shutdown
 

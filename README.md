@@ -23,11 +23,11 @@ The goal is to provide an easily deployable stack of daily-use apps that run any
 ### Local Development
 
 ```bash
-# Run an app locally
-go run ./cmd/notes
+# Run an app locally (binds :8080, stores data in ./data/<app>)
+just run notes
 
-# Run with a custom storage path
-STORAGE_DIR=/tmp/notes-storage go run ./cmd/notes
+# Override storage location or port
+STORAGE_DIR=/tmp/notes-storage PORT=3000 just run notes
 ```
 
 ### Build Docker Images
@@ -102,9 +102,9 @@ Every app in this repo conforms to the [ONCE spec](https://github.com/basecamp/o
 | Requirement | How we satisfy it |
 |-------------|-----------------|
 | **Docker container** | Standard multi-stage Dockerfile in `build/Dockerfile` |
-| **HTTP on port 80** | Apps bind to `:80` by default (override with `PORT`) |
+| **HTTP on port 80** | Apps bind `:80` in Docker / `:8080` locally (override with `PORT`) |
 | **Health check at `/up`** | [`pkg/health`](./pkg/health) provides a standard handler; every app mounts it |
-| **Persistent data in `/storage`** | [`pkg/storage`](./pkg/storage) abstracts the filesystem; apps write to `/storage` |
+| **Persistent data in `/storage`** | [`pkg/storage`](./pkg/storage) uses `/storage` in Docker, `./data` locally |
 | **Non-root user** | Dockerfile creates and runs as `appuser` (UID 1000) |
 
 ### Optional Enhancements
@@ -118,8 +118,8 @@ Every app in this repo conforms to the [ONCE spec](https://github.com/basecamp/o
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `PORT` | HTTP server port | `80` |
-| `STORAGE_DIR` | Persistent storage path | `/storage` |
+| `PORT` | HTTP server port | `80` in Docker / `8080` locally |
+| `STORAGE_DIR` | Persistent storage path | `/storage` in Docker / `./data` locally |
 | `SECRET_KEY_BASE` | Cryptographic secret (injected by ONCE) | auto-generated fallback |
 | `DISABLE_SSL` | Set to `true` when running without TLS | `false` |
 

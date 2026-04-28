@@ -13,17 +13,26 @@ import (
 	"once-stack/pkg/health"
 )
 
-// DefaultPort is the ONCE-required HTTP port.
-const DefaultPort = "80"
+// defaultPort picks a sensible default:
+//   - 80 in Docker/ONCE environments (when /storage exists)
+//   - 8080 for local development.
+func defaultPort() string {
+	if p := os.Getenv("PORT"); p != "" {
+		return p
+	}
+	if fi, err := os.Stat("/storage"); err == nil && fi.IsDir() {
+		return "80"
+	}
+	return "8080"
+}
 
 // New creates a minimal *http.Server with the ONCE /up health check already mounted.
 // Pass additional handlers to register on the default mux.
+// If port is empty, it defaults via defaultPort() (respects PORT env var, then
+// falls back to 80 in Docker or 8080 locally).
 func New(mux *http.ServeMux, port string) *http.Server {
 	if port == "" {
-		port = DefaultPort
-		if p := os.Getenv("PORT"); p != "" {
-			port = p
-		}
+		port = defaultPort()
 	}
 
 	if mux == nil {
