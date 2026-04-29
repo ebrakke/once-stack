@@ -1,0 +1,890 @@
+<!--
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║  ONCE Stack — Notes App / Design Option A: Calm Minimal (Calmin)              ║
+║                                                                                ║
+║  Aesthetic: Warm, quiet, productivity-focused single-column layout.            ║
+║  Inspired by Bear, Linear, DayOne — not a Tailwind default.                    ║
+║                                                                                ║
+║  Usage: Open this file in a browser. Use nav tabs at top to explore states.    ║
+╚══════════════════════════════════════════════════════════════════════════════════╝
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calmin — Design Option A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+<style>
+/* ========================================================================
+   CSS VARIABLES — FULL DESIGN SYSTEM
+   ======================================================================== */
+:root {
+  /* --- Palette: warm, muted, low-saturation --- */
+  --clr-bg:          #f8f7f4;
+  --clr-surface:     #ffffff;
+  --clr-surface-hover: #fcfbf9;
+  --clr-border:      #e6e3de;
+  --clr-border-light:#f0ede8;
+
+  --clr-text:        #1a1816;
+  --clr-text-secondary: #8b8680;
+  --clr-text-muted:  #b0aba4;
+  --clr-text-placeholder: #c8c3bc;
+
+  --clr-primary:     #3b4a5c;
+  --clr-primary-hover: #2d3a4a;
+  --clr-primary-subtle: #eef1f4;
+
+  --clr-accent:      #c1754a;
+  --clr-accent-subtle: #f8efe8;
+
+  --clr-danger:      #b54a3e;
+  --clr-danger-subtle: #f5ecea;
+
+  --clr-code-bg:     #f3f2ef;
+  --clr-code-text:   #2d3a4a;
+
+  --clr-shadow:      0 1px 3px rgba(26, 24, 22, 0.04), 0 1px 2px rgba(26, 24, 22, 0.03);
+  --clr-shadow-hover: 0 4px 12px rgba(26, 24, 22, 0.06);
+
+  /* --- Typography --- */
+  --font-sans:       'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono:       'SF Mono', 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --font-size-xs:    0.6875rem;   /* 11px */
+  --font-size-sm:    0.8125rem;   /* 13px */
+  --font-size-base:  0.9375rem;   /* 15px */
+  --font-size-lg:    1.0625rem;   /* 17px */
+  --font-size-xl:    1.3125rem;   /* 21px */
+  --font-size-2xl:   1.625rem;    /* 26px */
+
+  --line-height:     1.65;
+  --letter-spacing:  -0.006em;
+
+  /* --- Spacing (4px grid) --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* --- Layout --- */
+  --content-max-width: 44rem;  /* ~704px — tighter than Tailwind's max-w-2xl (672px feels cramped for reading) */
+  --header-height: 3.25rem;
+
+  /* --- Radius --- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* --- Transitions --- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ========================================================================
+   RESET / BASE
+   ======================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  letter-spacing: var(--letter-spacing);
+  color: var(--clr-text);
+  background: var(--clr-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+input, textarea { font-family: inherit; }
+
+/* ========================================================================
+   LAYOUT
+   ======================================================================== */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--header-height);
+  background: var(--clr-surface);
+  border-bottom: 1px solid var(--clr-border);
+  display: flex;
+  align-items: center;
+}
+
+.app-header__inner {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-logo {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--clr-primary);
+}
+
+.app-logo span { font-weight: 400; color: var(--clr-text-muted); }
+
+.app-main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-16);
+}
+
+/* ========================================================================
+   INDEX — NOTE LIST
+   ======================================================================== */
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.list-header h1 {
+  font-size: var(--font-size-xl);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--clr-text);
+}
+
+.list-meta {
+  font-size: var(--font-size-xs);
+  color: var(--clr-text-muted);
+  white-space: nowrap;
+}
+
+.note-list { display: flex; flex-direction: column; gap: 1px; }
+
+.note-list-item {
+  display: block;
+  background: var(--clr-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  transition: background 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+  cursor: pointer;
+  border: 1px solid var(--clr-border);
+}
+
+.note-list-item:hover {
+  background: var(--clr-surface-hover);
+  box-shadow: var(--clr-shadow-hover);
+  border-color: var(--clr-border);
+}
+
+.note-list-item + .note-list-item { margin-top: var(--space-2); }
+
+.note-list-item__title {
+  font-size: var(--font-size-base);
+  font-weight: 550;
+  color: var(--clr-text);
+  margin: 0 0 var(--space-1);
+  line-height: 1.4;
+}
+
+.note-list-item__meta {
+  font-size: var(--font-size-xs);
+  color: var(--clr-text-muted);
+}
+
+/* --- Empty state --- */
+.empty-state {
+  text-align: center;
+  padding: var(--space-16) var(--space-6);
+}
+
+.empty-state__icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--space-4);
+  opacity: 0.3;
+}
+
+.empty-state h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 550;
+  color: var(--clr-text);
+  margin: 0 0 var(--space-2);
+}
+
+.empty-state p {
+  font-size: var(--font-size-sm);
+  color: var(--clr-text-secondary);
+  margin: 0 0 var(--space-6);
+  max-width: 20rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========================================================================
+   VIEW — SINGLE NOTE
+   ======================================================================== */
+.note-view { max-width: 40rem; }  /* narrower for readability on desktop */
+
+.note-view__header {
+  margin-bottom: var(--space-3);
+}
+
+.note-view__title {
+  font-size: var(--font-size-2xl);
+  font-weight: 680;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+  margin: 0 0 var(--space-2);
+  color: var(--clr-text);
+}
+
+.note-view__meta {
+  font-size: var(--font-size-xs);
+  color: var(--clr-text-muted);
+}
+
+.note-view__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+}
+
+/* --- Markdown content — matches server-rendered .md-content --- */
+.md-content { overflow-wrap: break-word; }
+.md-content h1 { font-size: var(--font-size-xl); font-weight: 650; margin: var(--space-8) 0 var(--space-3); letter-spacing: -0.02em; color: var(--clr-text); }
+.md-content h2 { font-size: var(--font-size-lg); font-weight: 600; margin: var(--space-6) 0 var(--space-2); color: var(--clr-text); }
+.md-content h3 { font-size: var(--font-size-base); font-weight: 600; margin: var(--space-5) 0 var(--space-2); }
+.md-content h4 { font-size: var(--font-size-base); font-weight: 600; margin: var(--space-5) 0 var(--space-2); color: var(--clr-text-secondary); }
+.md-content p { margin: 0 0 var(--space-4); line-height: 1.7; }
+.md-content ul, .md-content ol { margin: 0 0 var(--space-4); padding-left: var(--space-6); }
+.md-content ul { list-style-type: disc; }
+.md-content ol { list-style-type: decimal; }
+.md-content li { margin-bottom: var(--space-1); line-height: 1.7; }
+.md-content pre { background: var(--clr-code-bg); color: var(--clr-code-text); border-radius: var(--radius-md); padding: var(--space-4); margin: 0 0 var(--space-4); overflow-x: auto; font-size: var(--font-size-sm); line-height: 1.6; }
+.md-content code { font-family: var(--font-mono); font-size: 0.9em; }
+.md-content :not(pre) > code { background: var(--clr-code-bg); color: var(--clr-code-text); padding: 0.125rem 0.375rem; border-radius: var(--radius-sm); }
+.md-content blockquote { border-left: 3px solid var(--clr-border); padding-left: var(--space-4); margin: 0 0 var(--space-4); color: var(--clr-text-secondary); }
+.md-content a { color: var(--clr-primary); text-decoration: underline; text-underline-offset: 2px; }
+.md-content a:hover { color: var(--clr-primary-hover); }
+.md-content table { width: 100%; border-collapse: collapse; margin: 0 0 var(--space-4); }
+.md-content th, .md-content td { border: 1px solid var(--clr-border); padding: var(--space-2) var(--space-3); text-align: left; font-size: var(--font-size-sm); }
+.md-content th { background: var(--clr-bg); font-weight: 550; }
+.md-content hr { border: 0; border-top: 1px solid var(--clr-border); margin: var(--space-8) 0; }
+.md-content img { max-width: 100%; height: auto; border-radius: var(--radius-md); margin: var(--space-4) 0; line-height: 0; display: block; }
+
+/* ========================================================================
+   FORM — NEW / EDIT
+   ======================================================================== */
+.note-form { max-width: 40rem; }
+
+.note-form__title {
+  font-size: var(--font-size-xl);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-6);
+  color: var(--clr-text);
+}
+
+.form-group { margin-bottom: var(--space-5); }
+
+.form-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: 550;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--clr-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.form-input {
+  display: block;
+  width: 100%;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-base);
+  color: var(--clr-text);
+  transition: border-color 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--clr-primary);
+  box-shadow: 0 0 0 3px var(--clr-primary-subtle);
+}
+
+.form-input::placeholder { color: var(--clr-text-placeholder); }
+
+.form-textarea {
+  resize: vertical;
+  min-height: 12rem;
+  line-height: 1.7;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding-top: var(--space-3);
+}
+
+/* ========================================================================
+   BUTTONS
+   ======================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: 1;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.12s var(--ease-out), border-color 0.12s var(--ease-out), color 0.12s var(--ease-out);
+  min-height: 2.25rem;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--clr-primary);
+  color: white;
+  border-color: var(--clr-primary);
+}
+
+.btn-primary:hover { background: var(--clr-primary-hover); border-color: var(--clr-primary-hover); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--clr-text-secondary);
+  border-color: var(--clr-border);
+}
+
+.btn-secondary:hover {
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  border-color: var(--clr-border);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--clr-danger);
+  border-color: var(--clr-danger-subtle);
+}
+
+.btn-danger:hover { background: var(--clr-danger-subtle); }
+
+.btn-link {
+  background: transparent;
+  color: var(--clr-text-secondary);
+  border-color: transparent;
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.btn-link:hover { color: var(--clr-text); }
+
+.btn-sm {
+  font-size: var(--font-size-xs);
+  padding: var(--space-1) var(--space-3);
+  min-height: 1.875rem;
+}
+
+/* ========================================================================
+   SEARCH BAR
+   ======================================================================== */
+.search-bar {
+  position: relative;
+  margin-bottom: var(--space-5);
+}
+
+.search-bar__input {
+  display: block;
+  width: 100%;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-10);
+  font-size: var(--font-size-sm);
+  color: var(--clr-text);
+  transition: border-color 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+  outline: none;
+}
+
+.search-bar__input:focus {
+  border-color: var(--clr-primary);
+  box-shadow: 0 0 0 3px var(--clr-primary-subtle);
+}
+
+.search-bar__input::placeholder { color: var(--clr-text-placeholder); }
+
+.search-bar__icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--clr-text-muted);
+  font-size: var(--font-size-sm);
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* ========================================================================
+   BACK LINK
+   ======================================================================== */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--clr-text-secondary);
+  margin-bottom: var(--space-5);
+  transition: color 0.12s var(--ease-out);
+}
+
+.back-link:hover { color: var(--clr-text); }
+
+/* ========================================================================
+   ERROR PAGE
+   ======================================================================== */
+.error-page {
+  text-align: center;
+  padding: var(--space-16) var(--space-6);
+}
+
+.error-page__code {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--clr-border);
+  letter-spacing: -0.04em;
+  margin: 0 0 var(--space-2);
+  line-height: 1;
+}
+
+.error-page h1 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+  color: var(--clr-text);
+}
+
+.error-page p {
+  font-size: var(--font-size-sm);
+  color: var(--clr-text-secondary);
+  margin: 0 0 var(--space-6);
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========================================================================
+   PROTOTYPE NAV — NOT PART OF THE REAL DESIGN
+   ======================================================================== */
+.prototype-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--clr-surface);
+  border-top: 1px solid var(--clr-border);
+  font-size: var(--font-size-xs);
+  overflow-x: auto;
+}
+
+.prototype-nav button {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--clr-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: var(--font-size-xs);
+  transition: all 0.12s var(--ease-out);
+}
+
+.prototype-nav button:hover { border-color: var(--clr-primary); color: var(--clr-primary); }
+.prototype-nav button.active { background: var(--clr-primary-subtle); border-color: var(--clr-primary); color: var(--clr-primary); font-weight: 550; }
+
+.prototype-panel { display: none; }
+.prototype-panel.active { display: block; }
+
+/* Prototype padding bottom to not be covered by nav */
+body { padding-bottom: 4rem; }
+</style>
+</head>
+<body>
+
+<!-- ================================================================ -->
+<!-- HEADER (shared across all states)                                -->
+<!-- ================================================================ -->
+<header class="app-header">
+  <div class="app-header__inner">
+    <a href="#" class="app-logo">Calmin<span> / notes</span></a>
+    <div style="display:flex;gap:var(--space-2);align-items:center;">
+      <a href="#" class="btn btn-sm btn-link" style="font-size:var(--font-size-xs);">Files</a>
+      <a href="#" class="btn btn-sm btn-link" style="font-size:var(--font-size-xs);">Blog</a>
+    </div>
+  </div>
+</header>
+
+<main class="app-main">
+
+<!-- ================================================================ -->
+<!-- PANEL 1: NOTE LIST (with sample data)                            -->
+<!-- ================================================================ -->
+<div class="prototype-panel active" data-panel="list">
+  <div class="list-header">
+    <h1>Notes</h1>
+    <div style="display:flex;gap:var(--space-3);align-items:center;">
+      <span class="list-meta">4 notes</span>
+      <a href="#" class="btn btn-primary btn-sm" onclick="switchPanel('form-new');return false;">New Note</a>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <span class="search-bar__icon">⌕</span>
+    <input class="search-bar__input" type="search" placeholder="Search notes…" aria-label="Search notes">
+  </div>
+
+  <!-- Note list -->
+  <div class="note-list">
+    <a class="note-list-item" href="#" onclick="switchPanel('view-meeting');return false;">
+      <h3 class="note-list-item__title">Meeting notes — Q2 planning</h3>
+      <p class="note-list-item__meta">Apr 28, 2026</p>
+    </a>
+    <a class="note-list-item" href="#" onclick="switchPanel('view-schema');return false;">
+      <h3 class="note-list-item__title">Database schema decisions</h3>
+      <p class="note-list-item__meta">Apr 25, 2026</p>
+    </a>
+    <a class="note-list-item" href="#" onclick="switchPanel('view-compost');return false;">
+      <h3 class="note-list-item__title">How to start a compost pile</h3>
+      <p class="note-list-item__meta">Apr 20, 2026</p>
+    </a>
+    <a class="note-list-item" href="#" onclick="switchPanel('view-recipes');return false;">
+      <h3 class="note-list-item__title">Sourdough starter recipe</h3>
+      <p class="note-list-item__meta">Apr 14, 2026</p>
+    </a>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PANEL 2: EMPTY STATE                                             -->
+<!-- ================================================================ -->
+<div class="prototype-panel" data-panel="empty">
+  <div class="list-header">
+    <h1>Notes</h1>
+    <a href="#" class="btn btn-primary btn-sm" onclick="switchPanel('form-new');return false;">New Note</a>
+  </div>
+
+  <div class="empty-state">
+    <div class="empty-state__icon">✦</div>
+    <h2>No notes yet</h2>
+    <p>Your notes live here. Start writing — they sync across devices.</p>
+    <a href="#" class="btn btn-primary" onclick="switchPanel('form-new');return false;">Create your first note</a>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PANEL 3: NOTE VIEW — "Meeting notes"                             -->
+<!-- ================================================================ -->
+<div class="prototype-panel" data-panel="view-meeting">
+  <a href="#" class="back-link" onclick="switchPanel('list');return false;">← All notes</a>
+
+  <article class="note-view">
+    <div class="note-view__header">
+      <h1 class="note-view__title">Meeting notes — Q2 planning</h1>
+      <p class="note-view__meta">Updated Apr 28, 2026</p>
+    </div>
+
+    <div class="note-view__actions">
+      <a href="#" class="btn btn-sm btn-secondary" onclick="switchPanel('form-edit');return false;">Edit</a>
+      <button class="btn btn-sm btn-danger" onclick="if(confirm('Delete this note?'))switchPanel('list');">Delete</button>
+    </div>
+
+    <div class="md-content">
+      <p><strong>Attendees:</strong> Alex, Jordan, Sam, Casey</p>
+
+      <h2>Goals for Q2</h2>
+      <ul>
+        <li>Ship the public API v1 by end of May</li>
+        <li>Reduce page load time under 200ms (currently ~340ms)</li>
+        <li>Onboard 3 beta customers</li>
+      </ul>
+
+      <h2>Action items</h2>
+      <ol>
+        <li>Alex: Draft API docs by May 5</li>
+        <li>Jordan: Performance audit — ETA May 10</li>
+        <li>Sam: Set up customer onboarding flow</li>
+      </ol>
+
+      <blockquote>
+        Next sync: Thursday May 1, 10am PT
+      </blockquote>
+    </div>
+  </article>
+</div>
+
+<!-- ================================================================ -->
+<!-- PANEL 4: NOTE VIEW — "Database schema decisions"                 -->
+<!-- ================================================================ -->
+<div class="prototype-panel" data-panel="view-schema">
+  <a href="#" class="back-link" onclick="switchPanel('list');return false;">← All notes</a>
+
+  <article class="note-view">
+    <div class="note-view__header">
+      <h1 class="note-view__title">Database schema decisions</h1>
+      <p class="note-view__meta">Updated Apr 25, 2026</p>
+    </div>
+
+    <div class="note-view__actions">
+      <a href="#" class="btn btn-sm btn-secondary" onclick="switchPanel('form-edit');return false;">Edit</a>
+      <button class="btn btn-sm btn-danger" onclick="if(confirm('Delete this note?'))switchPanel('list');">Delete</button>
+    </div>
+
+    <div class="md-content">
+      <p>After the review session, we settled on the following schema for the <code>notes</code> table:</p>
+
+<pre>CREATE TABLE notes (
+  id        TEXT PRIMARY KEY,
+  title     TEXT NOT NULL,
+  body      TEXT,
+  slug      TEXT NOT NULL UNIQUE,
+  created   INTEGER NOT NULL,
+  updated   INTEGER NOT NULL
+);</pre>
+
+      <p>Key decisions:</p>
+      <ul>
+        <li>Use <strong>TEXT IDs</strong> (slug-based) instead of auto-increment — makes URLs cleaner and simplifies import/export</li>
+        <li>Store <code>created</code>/<code>updated</code> as <strong>Unix timestamps</strong> (INTEGER) to avoid timezone headaches</li>
+        <li>No foreign keys for now — this is a single-entity app</li>
+      </ul>
+    </div>
+  </article>
+</div>
+
+<!-- ================================================================ -->
+<!-- PANEL 5: NOTE VIEW — "How to start a compost pile"               -->
+<!-- ================================================================ -->
+<div class="prototype-panel" data-panel="view-compost">
+  <a href="#" class="back-link" onclick="switchPanel('list');return false;">← All notes</a>
+
+  <article class="note-view">
+    <div class="note-view__header">
+      <h1 class="note-view__title">How to start a compost pile</h1>
+      <p class="note-view__meta">Updated Apr 20, 2026</p>
+    </div>
+
+    <div class="note-view__actions">
+      <a href="#" class="btn btn-sm btn-secondary" onclick="switchPanel('form-edit');return false;">Edit</a>
+      <button class="btn btn-sm btn-danger" onclick="if(confirm('Delete this note?'))switchPanel('list');">Delete</button>
+    </div>
+
+    <div class="md-content">
+      <p>Composting is nature's way of recycling. Here's a simple guide to get started.</p>
+
+      <h2>What you need</h2>
+      <ul>
+        <li>A bin or an open pile location</li>
+        <li>Browns (dried leaves, cardboard, wood chips)</li>
+        <li>Greens (kitchen scraps, grass clippings, coffee grounds)</li>
+        <li>Water + air (turn every few days)</li>
+      </ul>
+
+      <h2>Layer ratio</h2>
+      <p>Aim for roughly <strong>3 parts browns to 1 part greens</strong>. Too many greens and it gets smelly. Too many browns and it takes forever.</p>
+
+      <h2>What NOT to compost</h2>
+      <ul>
+        <li>Meat, dairy, or oily foods (attracts pests)</li>
+        <li>Diseased plants</li>
+        <li>Weeds that have gone to seed</li>
+      </ul>
+
+      <hr>
+
+      <p>In ~3–6 months you'll have dark, crumbly compost ready for the garden.</p>
+    </div>
+  </article>
+</div>
+
+<!-- ================================================================ -->
+<!-- PANEL 6: NOTE VIEW — "Sourdough starter recipe"                  -->
+<!-- ================================================================ -->
+<div class="prototype-panel" data-panel="view-recipes">
+  <a href="#" class="back-link" onclick="switchPanel('list');return false;">← All notes</a>
+
+  <article class="note-view">
+    <div class="note-view__header">
+      <h1 class="note-view__title">Sourdough starter recipe</h1>
+      <p class="note-view__meta">Updated Apr 14, 2026</p>
+    </div>
+
+    <div class="note-view__actions">
+      <a href="#" class="btn btn-sm btn-secondary" onclick="switchPanel('form-edit');return false;">Edit</a>
+      <button class="btn btn-sm btn-danger" onclick="if(confirm('Delete this note?'))switchPanel('list');">Delete</button>
+    </div>
+
+    <div class="md-content">
+      <p>A sourdough starter is a living culture of wild yeast and bacteria. Here's how to make one from scratch.</p>
+
+      <h2>Day 1</h2>
+      <p>Mix 50g whole wheat flour + 50g water in a jar. Cover loosely. Leave at room temperature.</p>
+
+      <h2>Days 2–7</h2>
+      <p>Each day, discard half, then add 50g flour + 50g water. Stir. By day 5–7 it should double in size within 6–8 hours of feeding — that's when it's ready to bake.</p>
+
+      <h2>Maintenance</h2>
+      <ul>
+        <li>Store in fridge if feeding less than once a week</li>
+        <li>Feed 1:1:1 ratio (starter : flour : water) before baking</li>
+        <li>If hooch (dark liquid) forms on top, pour it off — your starter is hungry</li>
+      </ul>
+    </div>
+  </article>
+</div>
+
+<!-- ================================================================ -->
+<!-- PANEL 7: NEW NOTE FORM                                           -->
+<!-- ================================================================ -->
+<div class="prototype-panel" data-panel="form-new">
+  <a href="#" class="back-link" onclick="switchPanel('list');return false;">← All notes</a>
+
+  <div class="note-form">
+    <h1 class="note-form__title">New note</h1>
+
+    <form onsubmit="event.preventDefault(); switchPanel('view-meeting');">
+      <div class="form-group">
+        <label class="form-label" for="nf-title">Title</label>
+        <input class="form-input" id="nf-title" type="text" placeholder="Note title" value="Meeting notes — Q2 planning" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="nf-body">Body</label>
+        <textarea class="form-input form-textarea" id="nf-body" placeholder="Write in markdown…">## Attendees
+Alex, Jordan, Sam, Casey
+
+## Goals for Q2
+- Ship the public API v1 by end of May
+- Reduce page load time under 200ms
+- Onboard 3 beta customers</textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a href="#" class="btn btn-secondary" onclick="switchPanel('list');return false;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PANEL 8: EDIT NOTE FORM                                          -->
+<!-- ================================================================ -->
+<div class="prototype-panel" data-panel="form-edit">
+  <a href="#" class="back-link" onclick="switchPanel('view-meeting');return false;">← Back to note</a>
+
+  <div class="note-form">
+    <h1 class="note-form__title">Edit note</h1>
+
+    <form onsubmit="event.preventDefault(); switchPanel('view-meeting');">
+      <div class="form-group">
+        <label class="form-label" for="ef-title">Title</label>
+        <input class="form-input" id="ef-title" type="text" value="Meeting notes — Q2 planning" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="ef-body">Body</label>
+        <textarea class="form-input form-textarea" id="ef-body">**Attendees:** Alex, Jordan, Sam, Casey
+
+## Goals for Q2
+- Ship the public API v1 by end of May
+- Reduce page load time under 200ms (currently ~340ms)
+- Onboard 3 beta customers</textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="#" class="btn btn-secondary" onclick="switchPanel('view-meeting');return false;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PANEL 9: ERROR STATE                                             -->
+<!-- ================================================================ -->
+<div class="prototype-panel" data-panel="error">
+  <div class="error-page">
+    <p class="error-page__code">404</p>
+    <h1>Note not found</h1>
+    <p>This note may have been deleted or the link is incorrect.</p>
+    <a href="#" class="btn btn-primary" onclick="switchPanel('list');return false;">All notes</a>
+  </div>
+</div>
+
+</main>
+
+<!-- ================================================================ -->
+<!-- PROTOTYPE NAV — navigate between states                          -->
+<!-- ================================================================ -->
+<nav class="prototype-nav" aria-label="Prototype state switcher">
+  <button class="active" data-target="list"       onclick="switchPanel('list')">List</button>
+  <button data-target="empty"      onclick="switchPanel('empty')">Empty</button>
+  <button data-target="view-meeting" onclick="switchPanel('view-meeting')">View</button>
+  <button data-target="view-schema"  onclick="switchPanel('view-schema')">View (code)</button>
+  <button data-target="view-compost" onclick="switchPanel('view-compost')">View (long)</button>
+  <button data-target="form-new"   onclick="switchPanel('form-new')">New Form</button>
+  <button data-target="form-edit"  onclick="switchPanel('form-edit')">Edit Form</button>
+  <button data-target="error"      onclick="switchPanel('error')">Error</button>
+</nav>
+
+<script>
+function switchPanel(id) {
+  document.querySelectorAll('.prototype-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.prototype-nav button').forEach(b => b.classList.remove('active'));
+
+  const panel = document.querySelector(`[data-panel="${id}"]`);
+  if (panel) panel.classList.add('active');
+
+  const btn = document.querySelector(`.prototype-nav button[data-target="${id}"]`);
+  if (btn) btn.classList.add('active');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  return false;
+}
+</script>
+</body>
+</html>

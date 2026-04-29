@@ -1,0 +1,12 @@
+{
+  "name": "once-stack",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "css:build": "tailwindcss -i pkg/ui/styles/once.css -o pkg/ui/static/once.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.4",
+    "tailwindcss": "^4.2.4"
+  }
+}

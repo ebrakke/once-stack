@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ONCE Stack UI System · Implementation Plan</title>
+<style>
+:root{
+  --bg:#f8f7f4;--surface:#fff;--surface-hover:#fcfbf9;--border:#e6e3de;--border-light:#f0ede8;
+  --text:#1a1816;--muted:#807a72;--faint:#aaa39a;--primary:#3b4a5c;--primary-hover:#2d3a4a;--accent:#c1754a;--danger:#b54a3e;
+  --code-bg:#202734;--code-text:#eef2f6;--radius:14px;--shadow:0 1px 3px rgba(26,24,22,.04),0 8px 28px rgba(26,24,22,.06);
+  --sans:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.65 var(--sans);-webkit-font-smoothing:antialiased}a{color:inherit}.shell{max-width:1120px;margin:0 auto;padding:0 20px 70px}.top{position:sticky;top:0;z-index:10;background:rgba(248,247,244,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}.top-inner{max-width:1120px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-weight:850;letter-spacing:-.035em}.brand small{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:800}.nav{display:flex;gap:8px;flex-wrap:wrap}.nav a,.pill{font:700 12px var(--sans);text-decoration:none;color:var(--muted);border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:7px 11px}.hero{padding:48px 0 26px;display:grid;grid-template-columns:1.15fr .85fr;gap:20px}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}.hero h1{font-size:42px;line-height:1.04;letter-spacing:-.06em;margin:0 0 14px}.lede{font-size:17px;color:var(--muted);margin:0}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.three{grid-template-columns:repeat(3,1fr)}section{scroll-margin-top:76px;margin-top:22px}h2{font-size:24px;line-height:1.2;letter-spacing:-.035em;margin:0 0 12px}h3{font-size:16px;margin:0 0 8px}p{margin:0 0 12px;color:var(--muted)}ul,ol{margin:0;padding-left:20px;color:var(--muted)}li{margin:5px 0}.callout{border-left:4px solid var(--accent);background:#fffaf6;padding:14px 16px;border-radius:10px;color:var(--muted)}.rec{border-left-color:var(--primary);background:#f5f7f8}.danger{border-left-color:var(--danger);background:#fff7f6}.kpi{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start}.num{width:42px;height:42px;border-radius:50%;background:var(--primary);color:white;display:grid;place-items:center;font-weight:850}.tag{display:inline-block;padding:2px 7px;border-radius:999px;background:#eef1f4;color:var(--primary);font-size:12px;font-weight:800}.phase{display:grid;grid-template-columns:130px 1fr;gap:16px;border-top:1px solid var(--border);padding-top:18px;margin-top:18px}.phase-title{font-weight:850;color:var(--primary)}pre{background:var(--code-bg);color:var(--code-text);padding:16px;border-radius:12px;overflow:auto;font:13px/1.5 var(--mono);margin:12px 0}code{font-family:var(--mono);background:#f1efeb;padding:2px 5px;border-radius:5px;color:#29303a}pre code{background:transparent;color:inherit;padding:0}.filetree{white-space:pre;background:#fbfaf8;border:1px solid var(--border);border-radius:12px;padding:14px;font-family:var(--mono);font-size:13px;color:#3a352f}.togglebar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.toggle{border:1px solid var(--border);background:white;border-radius:10px;padding:8px 11px;cursor:pointer;font-weight:800;color:var(--muted)}.toggle.active{background:var(--primary);color:white;border-color:var(--primary)}.panel{display:none}.panel.active{display:block}.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.swatch{border-radius:12px;padding:34px 10px 10px;font-size:12px;font-weight:850;border:1px solid rgba(0,0,0,.08)}table{width:100%;border-collapse:collapse;background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden}th,td{text-align:left;border-bottom:1px solid var(--border);padding:10px;vertical-align:top}th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:#fbfaf8}tr:last-child td{border-bottom:0}.checklist label{display:block;margin:8px 0;color:var(--muted)}.checklist input{accent-color:var(--primary)}@media(max-width:850px){.hero,.grid,.three{grid-template-columns:1fr}.phase{grid-template-columns:1fr}.top-inner{align-items:flex-start;flex-direction:column}.hero h1{font-size:32px}.swatches{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-inner"><div class="brand">ONCE UI System Plan<small>Option A · shared elements, independent apps</small></div><nav class="nav"><a href="#findings">Findings</a><a href="#architecture">Architecture</a><a href="#components">Components</a><a href="#tasks">Tasks</a><a href="#risks">Risks</a></nav></div></header>
+<div class="shell">
+  <section class="hero">
+    <div class="card"><h1>Implement Option A as a small Go-native design system.</h1><p class="lede">Each ONCE app remains independently deployed — <strong>Notes</strong>, <strong>Files</strong>, or <strong>Blog</strong> — but they share the same layout primitives, colors, typography, buttons, cards, forms, markdown styles, and rendering helpers.</p></div>
+    <div class="card"><h2>Recommendation</h2><div class="callout rec"><strong>Use Go for rendering and Tailwind for styling:</strong> <code>html/template</code> + <code>embed.FS</code> + a focused <code>pkg/ui</code> package, with a customized Tailwind build for the shared visual system. Avoid frontend UI frameworks, but do not reinvent Tailwind's utility system.</div><br><div class="swatches"><div class="swatch" style="background:#f8f7f4">bg<br>#f8f7f4</div><div class="swatch" style="background:#fff">surface<br>#ffffff</div><div class="swatch" style="background:#3b4a5c;color:white">primary<br>#3b4a5c</div><div class="swatch" style="background:#c1754a;color:white">accent<br>#c1754a</div></div></div>
+  </section>
+
+  <section id="findings" class="card">
+    <h2>Research findings: idiomatic Go + Tailwind without frontend frameworks</h2>
+    <div class="grid three">
+      <div class="kpi"><div class="num">1</div><div><h3>Use <code>html/template</code></h3><p>It is the standard library choice for server-rendered HTML and performs context-aware escaping. Keep using <code>template.HTML</code> only for sanitized markdown output.</p></div></div>
+      <div class="kpi"><div class="num">2</div><div><h3>Embed templates/assets</h3><p><code>embed.FS</code> keeps Docker images self-contained and avoids runtime path issues. Parse at startup and fail fast.</p></div></div>
+      <div class="kpi"><div class="num">3</div><div><h3>Compose named templates</h3><p>Use <code>{{define}}</code>, <code>{{template}}</code>, and preferably <code>{{block}}</code> for layouts and page content.</p></div></div>
+      <div class="kpi"><div class="num">4</div><div><h3>Share package APIs, not file paths</h3><p>Create <code>pkg/ui</code> with a narrow renderer API. Apps pass their embedded templates into it.</p></div></div>
+      <div class="kpi"><div class="num">5</div><div><h3>Small pure helper funcs</h3><p>Register helpers before parsing: date formatting, class joining, dict construction, current-year, app labels. Keep business logic in handlers.</p></div></div>
+      <div class="kpi"><div class="num">6</div><div><h3>Lean into Tailwind</h3><p>Use Tailwind's theme customization, utilities, forms/typography patterns, and build-time purge. The no-framework constraint should mean no React/Vue/Svelte app, not no CSS tooling.</p></div></div>
+    </div>
+  </section>
+
+  <section id="architecture" class="card">
+    <h2>Proposed architecture</h2>
+    <p>Move shared layout and design primitives into <code>pkg/ui</code>. Keep app-specific pages in each app package, so binaries remain independent and only import the UI code they need.</p>
+    <div class="filetree">pkg/ui/
+├── renderer.go              # Renderer type, Parse, Render, FuncMap
+├── data.go                  # Page, App, NavItem, Flash types
+├── templates/
+│   ├── layout.html          # Shared document shell and Option A header
+│   ├── error.html           # Shared error page
+│   └── components.html      # Optional named partials for repeated markup
+├── styles/
+│   └── once.css             # Tailwind input: @tailwind + @theme/@layer customizations
+└── static/
+    └── once.css             # Compiled Tailwind output embedded in Go binaries
+
+pkg/notes/
+├── templates.go             # Notes-specific renderer setup
+└── templates/
+    ├── index.html           # Defines "content" or page template
+    ├── view.html
+    └── form.html</div>
+    <h3>Renderer shape</h3>
+    <pre><code>package ui
+
+type App struct {
+    Name     string // "Notes"
+    BasePath string // usually "/"
+}
+
+type Page struct {
+    App   App
+    Title string
+    Error string
+    Data  any
+}
+
+type Renderer struct { templates *template.Template }
+
+func NewRenderer(appFS fs.FS, appPatterns ...string) (*Renderer, error)
+func (r *Renderer) Render(w io.Writer, name string, page Page) error</code></pre>
+    <div class="callout"><strong>Key idea:</strong> app handlers build typed view models, then wrap them in <code>ui.Page{App: ui.App{Name:"Notes"}, Title:"Notes", Data: notes.IndexData{...}}</code>. Shared templates read common layout fields; page templates read <code>.Data</code>.</div>
+  </section>
+
+  <section id="components" class="card">
+    <h2>Shared UI elements to extract first</h2>
+    <div class="callout rec"><strong>Tailwind direction:</strong> define Option A as a Tailwind theme/preset plus a few semantic component classes in <code>@layer components</code>. Templates can still use normal Tailwind utilities for one-off layout, while repeated patterns use classes like <code>once-btn</code>, <code>once-card</code>, and <code>once-input</code>.</div><br>
+    <div class="togglebar"><button class="toggle active" data-panel="tokens">Tokens</button><button class="toggle" data-panel="layout">Layout</button><button class="toggle" data-panel="components">Components</button><button class="toggle" data-panel="states">States</button></div>
+    <div id="panel-tokens" class="panel active"><table><tr><th>Area</th><th>Shared token</th><th>Purpose</th></tr><tr><td>Color</td><td><code>bg-once-bg</code>, <code>bg-once-surface</code>, <code>text-once-text</code>, <code>bg-once-primary</code></td><td>Expose the Option A palette through Tailwind theme tokens.</td></tr><tr><td>Shape</td><td><code>rounded-once</code>, <code>shadow-once</code></td><td>Cards, buttons, fields, alerts use shared radii and shadows.</td></tr><tr><td>Type</td><td><code>font-sans</code>, <code>font-mono</code>, custom text scale if needed</td><td>Use Tailwind defaults unless Option A needs a deliberate override.</td></tr><tr><td>Layout</td><td><code>max-w-once-content</code>, <code>h-once-header</code></td><td>Independent apps share the same comfortable centered layout.</td></tr></table></div>
+    <div id="panel-layout" class="panel"><ul><li><strong>App header:</strong> app name only, no cross-app nav.</li><li><strong>Page container:</strong> centered content, max-width around 44rem.</li><li><strong>Article container:</strong> slightly narrower for reading if needed.</li><li><strong>Actions row:</strong> title/meta on left, primary action on right.</li></ul></div>
+    <div id="panel-components" class="panel"><ul><li><code>once-btn</code>: Tailwind-composed primary, secondary, danger, ghost buttons.</li><li><code>once-card</code>: Tailwind-composed base card and hoverable list item.</li><li><code>once-field</code>, <code>once-input</code>, <code>once-textarea</code>: consistent forms, using Tailwind focus rings.</li><li><code>once-empty</code>: empty state shell with title/copy/action.</li><li><code>prose once-prose</code> or <code>md-content</code>: shared markdown typography, ideally using Tailwind Typography if we add the plugin.</li></ul></div>
+    <div id="panel-states" class="panel"><ul><li>List / index page</li><li>Detail / view page</li><li>Create/edit form</li><li>Empty state</li><li>Error state</li><li>Later: loading is less relevant for server-rendered apps, but useful if adding progressive enhancement.</li></ul></div>
+  </section>
+
+  <section id="tasks" class="card">
+    <h2>Implementation task breakdown</h2>
+    <div class="phase"><div class="phase-title">Phase 0<br><span class="tag">decision</span></div><div><h3>Confirm design direction and scope</h3><ol><li>Approve Option A as the default ONCE visual language.</li><li>Decide Tailwind build mechanics. Recommendation: source CSS in <code>pkg/ui/styles/once.css</code>, compile to <code>pkg/ui/static/once.css</code>, and serve the embedded compiled file.</li><li>Agree that each app has its own header identity and no cross-app shell.</li></ol></div></div>
+    <div class="phase"><div class="phase-title">Phase 1<br><span class="tag">foundation</span></div><div><h3>Create <code>pkg/ui</code></h3><ol><li>Add Tailwind config/input CSS for the Option A theme.</li><li>Add a build command, likely <code>bunx @tailwindcss/cli -i pkg/ui/styles/once.css -o pkg/ui/static/once.css --minify</code>.</li><li>Add embedded shared templates and compiled CSS.</li><li>Add <code>Renderer</code>, <code>Page</code>, <code>App</code>, and small <code>FuncMap</code>.</li><li>Add <code>ui.HandleStatic()</code> or <code>ui.StaticHandler()</code> for embedded CSS.</li><li>Add unit tests that parse templates and render a tiny fixture page.</li></ol></div></div>
+    <div class="phase"><div class="phase-title">Phase 2<br><span class="tag">notes migration</span></div><div><h3>Migrate Notes to shared UI</h3><ol><li>Replace Tailwind CDN usage with the shared compiled Tailwind CSS asset.</li><li>Update <code>pkg/notes/templates.go</code> to call <code>ui.NewRenderer</code>.</li><li>Split <code>TemplateData</code> into page-specific view models if useful: <code>IndexData</code>, <code>ViewData</code>, <code>FormData</code>.</li><li>Keep handler render wrappers stable initially: <code>RenderIndex</code>, <code>RenderView</code>, <code>RenderForm</code>, <code>RenderError</code>.</li><li>Run <code>go test ./...</code> and manually test create/view/edit/delete.</li></ol></div></div>
+    <div class="phase"><div class="phase-title">Phase 3<br><span class="tag">hardening</span></div><div><h3>Make shared components robust</h3><ol><li>Add golden-ish rendering tests for shared error and layout output.</li><li>Normalize title generation: avoid strings like <code>Title — Notes — Notes</code>.</li><li>Document template naming conventions to avoid collisions.</li><li>Verify sanitized markdown remains the only source of <code>template.HTML</code>.</li></ol></div></div>
+    <div class="phase"><div class="phase-title">Phase 4<br><span class="tag">reuse</span></div><div><h3>Apply to Files and Blog as they become real apps</h3><ol><li>Files uses same header, cards/list rows, empty state, forms/buttons.</li><li>Blog uses same system with optional article typography variant from Option C.</li><li>Extract any repeated app-specific patterns only after the second app needs them.</li></ol></div></div>
+  </section>
+
+  <section id="risks" class="card">
+    <h2>Risks and guardrails</h2>
+    <div class="grid">
+      <div class="callout danger"><h3>Template name collisions</h3><p>All names live in one template tree. Use namespaced templates like <code>ui/layout</code>, <code>ui/button</code>, <code>notes/index</code>.</p></div>
+      <div class="callout danger"><h3>Over-abstracting too early</h3><p>Start with Tailwind tokens/classes and layout. Avoid generic template components that make simple HTML hard to read.</p></div>
+      <div class="callout danger"><h3>Security with raw HTML</h3><p>Continue to sanitize markdown before assigning <code>template.HTML</code>. Do not add generic "safeHTML" helpers.</p></div>
+      <div class="callout danger"><h3>Build and asset route conflicts</h3><p>Keep Tailwind build outputs deterministic and mount compiled assets under a reserved path such as <code>/assets/once/once.css</code> from <code>pkg/server</code> or each app mux.</p></div>
+    </div>
+  </section>
+
+  <section class="card checklist">
+    <h2>Review checklist</h2>
+    <label><input type="checkbox"> Option A approved as the baseline visual language</label>
+    <label><input type="checkbox"> Independent app identity confirmed — no global ONCE Stack shell</label>
+    <label><input type="checkbox"> Standard library templates accepted over templ/gomponents</label>
+    <label><input type="checkbox"> Tailwind build step accepted, e.g. via bunx</label>
+    <label><input type="checkbox"> Shared compiled CSS route accepted</label>
+    <label><input type="checkbox"> Notes migration first, Files/Blog later</label>
+  </section>
+</div>
+<script>
+document.querySelectorAll('.toggle').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.toggle').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById('panel-'+btn.dataset.panel).classList.add('active')}));
+</script>
+</body>
+</html>

@@ -34,8 +34,20 @@ vet:
 tidy:
     go mod tidy
 
+# Build shared Tailwind CSS assets
+# Run this whenever pkg/ui/styles/once.css or templates using Tailwind classes change.
+css-build:
+    mkdir -p pkg/ui/static
+    bun run css:build
+
+# Verify generated CSS is up to date
+css-check:
+    #!/usr/bin/env bash
+    just css-build
+    git diff --exit-code pkg/ui/static/once.css
+
 # Run the full quality pipeline
-quality: fmt vet test
+quality: css-check fmt vet test
 
 # ── Docker ───────────────────────────────────────────────────────────────────
 
