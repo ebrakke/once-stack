@@ -1,0 +1,13 @@
+{{define "once/error"}}
+{{template "once/header" .}}
+<div class="py-12">
+    <div class="once-empty">
+        <h1 class="once-empty-title">{{.Data.StatusCode}}</h1>
+        <p class="once-empty-body">{{.Data.Message}}</p>
+        <div class="mt-4">
+            <a href="{{.App.BaseURL}}" class="once-btn once-btn-secondary">Back to {{.App.Name}}</a>
+        </div>
+    </div>
+</div>
+{{template "once/footer" .}}
+{{end}}

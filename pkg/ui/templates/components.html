@@ -1,0 +1,19 @@
+{{define "once/flash"}}
+{{if .Data.Flash}}
+<div class="mb-4">
+    <div class="once-alert once-alert-{{.Data.Flash.Type}}" role="alert">
+        {{.Data.Flash.Message}}
+    </div>
+</div>
+{{end}}
+{{end}}
+
+{{define "once/empty-state"}}
+<div class="once-empty">
+    {{if .Data.Title}}<h2 class="once-empty-title">{{.Data.Title}}</h2>{{end}}
+    {{if .Data.Body}}<p class="once-empty-body">{{.Data.Body}}</p>{{end}}
+    {{if .Data.ActionURL}}
+    <a href="{{.Data.ActionURL}}" class="once-btn once-btn-primary">{{.Data.ActionLabel}}</a>
+    {{end}}
+</div>
+{{end}}

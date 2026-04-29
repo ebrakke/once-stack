@@ -1,0 +1,24 @@
+{{define "once/header"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{if .Page.Title}}{{.Page.Title}} — {{end}}{{.App.Name}}</title>
+    <link rel="stylesheet" href="/assets/once/once.css">
+</head>
+<body class="bg-once-bg text-once-text antialiased min-h-screen flex flex-col font-sans">
+    <header class="bg-once-surface border-b border-once-border shadow-once-sm">
+        <div class="max-w-once-content-md mx-auto px-4 h-once-header-height flex items-center justify-between">
+            <a href="{{.App.BaseURL}}" class="font-semibold text-once-text hover:text-once-primary transition-colors">{{.App.Name}}</a>
+            {{block "once/header-extra" .}}{{end}}
+        </div>
+    </header>
+    <main class="flex-1 w-full max-w-once-content-md mx-auto px-4 py-6">
+{{end}}
+
+{{define "once/footer"}}
+    </main>
+</body>
+</html>
+{{end}}
