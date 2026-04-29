@@ -10,9 +10,9 @@ import (
 // Dir returns the effective storage root directory.
 //
 // Priority:
-//   1. STORAGE_DIR environment variable (explicit override)
-//   2. /storage if it already exists (ONCE/Docker mounted volume)
-//   3. ./data as a local dev fallback
+//  1. STORAGE_DIR environment variable (explicit override)
+//  2. /storage if it already exists (ONCE/Docker mounted volume)
+//  3. ./data as a local dev fallback
 func Dir() string {
 	if d := os.Getenv("STORAGE_DIR"); d != "" {
 		return d

@@ -2,11 +2,10 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 
+	"once-stack/pkg/notes"
 	"once-stack/pkg/server"
 	"once-stack/pkg/storage"
 )
@@ -23,10 +22,15 @@ func main() {
 	}
 	logger.Info("storage ready", "dir", dir)
 
-	mux := http.NewServeMux()
-	mux.Handle("GET /", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Notes app — coming soon")
-	}))
+	store, err := notes.NewStore(dir)
+	if err != nil {
+		logger.Error("failed to create store", "err", err)
+		os.Exit(1)
+	}
+	logger.Info("store ready", "dir", dir)
+
+	app := notes.NewApp(store)
+	mux := app.Routes()
 
 	srv := server.New(mux, "")
 	if err := server.Run(srv); err != nil {

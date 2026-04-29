@@ -38,6 +38,9 @@ go.work.sum
 /dist/
 /tmp/
 
+# Local app data
+/data/
+
 # Docker
 *.tar
 

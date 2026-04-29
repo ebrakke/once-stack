@@ -1,0 +1,26 @@
+{{template "header" .}}
+<div class="space-y-4">
+    <div class="flex items-center justify-between">
+        <h1 class="text-xl font-bold">Notes</h1>
+        <a href="/new" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors min-h-[44px]">New Note</a>
+    </div>
+
+    {{if .Notes}}
+    <div class="space-y-2">
+        {{range .Notes}}
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow transition-shadow">
+            <a href="/notes/{{.ID}}" class="block px-4 py-3">
+                <h2 class="font-medium text-gray-900">{{.Title}}</h2>
+                <p class="text-xs text-gray-500 mt-1">{{.UpdatedAt.Format "Jan 2, 2006 3:04 PM"}}</p>
+            </a>
+        </div>
+        {{end}}
+    </div>
+    {{else}}
+    <div class="bg-white rounded-lg border border-gray-200 p-8 text-center">
+        <p class="text-gray-500">No notes yet.</p>
+        <a href="/new" class="inline-flex items-center justify-center mt-4 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors min-h-[44px]">Create your first note</a>
+    </div>
+    {{end}}
+</div>
+{{template "footer" .}}
