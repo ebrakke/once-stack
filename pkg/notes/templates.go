@@ -10,8 +10,9 @@ import (
 )
 
 // TemplateData holds data for rendering page templates.
+// The page title is passed as a separate argument to render functions;
+// only page-specific structured data lives here.
 type TemplateData struct {
-	Title    string
 	Note     *Note
 	Notes    []Note
 	BodyHTML template.HTML // rendered markdown for the view page
@@ -36,20 +37,23 @@ func init() {
 }
 
 // RenderIndex renders the note listing page.
-func RenderIndex(w io.Writer, data *TemplateData) error {
-	page := ui.Page{Title: data.Title}
+// title is used for the browser <title> tag (App.Name is appended automatically).
+func RenderIndex(w io.Writer, title string, data *TemplateData) error {
+	page := ui.Page{Title: title}
 	return renderer.Render(w, "index.html", page, data)
 }
 
 // RenderView renders a single note view page with rendered markdown.
-func RenderView(w io.Writer, data *TemplateData) error {
-	page := ui.Page{Title: data.Title}
+// title is used for the browser <title> tag (App.Name is appended automatically).
+func RenderView(w io.Writer, title string, data *TemplateData) error {
+	page := ui.Page{Title: title}
 	return renderer.Render(w, "view.html", page, data)
 }
 
 // RenderForm renders the new/edit note form page.
-func RenderForm(w io.Writer, data *TemplateData) error {
-	page := ui.Page{Title: data.Title}
+// title is used for the browser <title> tag (App.Name is appended automatically).
+func RenderForm(w io.Writer, title string, data *TemplateData) error {
+	page := ui.Page{Title: title}
 	return renderer.Render(w, "form.html", page, data)
 }
 
@@ -57,7 +61,6 @@ func RenderForm(w io.Writer, data *TemplateData) error {
 func RenderError(w io.Writer, title, message string) error {
 	page := ui.Page{Title: title}
 	data := &TemplateData{
-		Title: title,
 		Error: message,
 	}
 	return renderer.Render(w, "app-error.html", page, data)

@@ -103,6 +103,32 @@ func TestRender_NoTitle(t *testing.T) {
 	}
 }
 
+func TestRenderEscapesUntrustedTitleAndData(t *testing.T) {
+	app := App{Name: "TestApp", BaseURL: "/"}
+	r, err := NewRenderer(app, testAppFS, "testdata/templates/test-page.html")
+	if err != nil {
+		t.Fatalf("NewRenderer failed: %v", err)
+	}
+
+	var buf bytes.Buffer
+	page := Page{Title: `<script>alert("title")</script>`}
+	data := map[string]string{"message": `<img src=x onerror=alert("body")>`}
+	if err := r.Render(&buf, "test-page", page, data); err != nil {
+		t.Fatalf("Render failed: %v", err)
+	}
+
+	html := buf.String()
+	if strings.Contains(html, `<script>alert("title")</script>`) {
+		t.Errorf("expected title to be escaped, got:\n%s", html)
+	}
+	if strings.Contains(html, `<img src=x onerror=alert("body")>`) {
+		t.Errorf("expected data to be escaped, got:\n%s", html)
+	}
+	if !strings.Contains(html, `&lt;script&gt;`) || !strings.Contains(html, `&lt;img`) {
+		t.Errorf("expected escaped title and body markers, got:\n%s", html)
+	}
+}
+
 func TestRenderError(t *testing.T) {
 	app := App{Name: "TestApp", BaseURL: "/"}
 	r, err := NewRenderer(app, testAppFS, "testdata/templates/test-page.html")

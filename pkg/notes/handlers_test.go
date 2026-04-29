@@ -294,19 +294,20 @@ func TestEmbeddedTemplatesParsed(t *testing.T) {
 	}
 
 	cases := []struct {
-		name string
-		fn   func(io.Writer, *TemplateData) error
-		data *TemplateData
+		name  string
+		fn    func(io.Writer, string, *TemplateData) error
+		title string
+		data  *TemplateData
 	}{
-		{"index.html", RenderIndex, &TemplateData{Title: "Notes", Notes: []Note{}}},
-		{"view.html", RenderView, &TemplateData{Title: "View", Note: &Note{ID: "a", Title: "T"}, BodyHTML: "<p>x</p>"}},
-		{"form.html", RenderForm, &TemplateData{Title: "Form", IsNew: true}},
+		{"index.html", RenderIndex, "", &TemplateData{Notes: []Note{}}},
+		{"view.html", RenderView, "View", &TemplateData{Note: &Note{ID: "a", Title: "T"}, BodyHTML: "<p>x</p>"}},
+		{"form.html", RenderForm, "Form", &TemplateData{IsNew: true}},
 	}
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			var buf bytes.Buffer
-			if err := c.fn(&buf, c.data); err != nil {
+			if err := c.fn(&buf, c.title, c.data); err != nil {
 				t.Fatalf("render %s: %v", c.name, err)
 			}
 		})
@@ -318,6 +319,77 @@ func TestEmbeddedTemplatesParsed(t *testing.T) {
 			t.Fatalf("RenderError: %v", err)
 		}
 	})
+}
+
+func TestNotesRenderRegression(t *testing.T) {
+	note := Note{ID: "unsafe-note", Title: `<b>Unsafe</b>`}
+
+	t.Run("index", func(t *testing.T) {
+		var buf bytes.Buffer
+		data := &TemplateData{Notes: []Note{note}}
+		if err := RenderIndex(&buf, "", data); err != nil {
+			t.Fatalf("RenderIndex: %v", err)
+		}
+		html := buf.String()
+		assertContains(t, html, `<title>Notes</title>`)
+		assertContains(t, html, `<link rel="stylesheet" href="/assets/once/once.css">`)
+		assertContains(t, html, `once-card`)
+		assertContains(t, html, `&lt;b&gt;Unsafe&lt;/b&gt;`)
+		assertNotContains(t, html, `<b>Unsafe</b>`)
+	})
+
+	t.Run("view", func(t *testing.T) {
+		var buf bytes.Buffer
+		data := &TemplateData{
+			Note:     &note,
+			BodyHTML: `<p><strong>sanitized markdown</strong></p>`,
+		}
+		if err := RenderView(&buf, `Unsafe <Title>`, data); err != nil {
+			t.Fatalf("RenderView: %v", err)
+		}
+		html := buf.String()
+		assertContains(t, html, `<title>Unsafe &lt;Title&gt; — Notes</title>`)
+		assertContains(t, html, `once-prose`)
+		assertContains(t, html, `<strong>sanitized markdown</strong>`)
+	})
+
+	t.Run("form", func(t *testing.T) {
+		var buf bytes.Buffer
+		data := &TemplateData{IsNew: true}
+		if err := RenderForm(&buf, "New Note", data); err != nil {
+			t.Fatalf("RenderForm: %v", err)
+		}
+		html := buf.String()
+		assertContains(t, html, `<title>New Note — Notes</title>`)
+		assertContains(t, html, `action="/notes"`)
+		assertContains(t, html, `once-input`)
+		assertContains(t, html, `once-textarea`)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		var buf bytes.Buffer
+		if err := RenderError(&buf, "Not Found", `Missing <thing>`); err != nil {
+			t.Fatalf("RenderError: %v", err)
+		}
+		html := buf.String()
+		assertContains(t, html, `<title>Not Found — Notes</title>`)
+		assertContains(t, html, `Missing &lt;thing&gt;`)
+		assertContains(t, html, `Back to Notes`)
+	})
+}
+
+func assertContains(t *testing.T, s, want string) {
+	t.Helper()
+	if !strings.Contains(s, want) {
+		t.Fatalf("expected output to contain %q, got:\n%s", want, s)
+	}
+}
+
+func assertNotContains(t *testing.T, s, unwanted string) {
+	t.Helper()
+	if strings.Contains(s, unwanted) {
+		t.Fatalf("expected output not to contain %q, got:\n%s", unwanted, s)
+	}
 }
 
 // TestFileOps tests that file creation, reading, and listing work through the handlers.

@@ -53,10 +53,11 @@ func (a *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := &TemplateData{
-		Title: "Notes",
 		Notes: notes,
 	}
-	if err := RenderIndex(w, data); err != nil {
+	// Empty page title so browser tab shows just "Notes" from App.Name,
+	// avoiding "Notes — Notes" duplication.
+	if err := RenderIndex(w, "", data); err != nil {
 		slog.Error("render index", "err", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
@@ -64,10 +65,9 @@ func (a *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleNewForm(w http.ResponseWriter, r *http.Request) {
 	data := &TemplateData{
-		Title: "New Note",
 		IsNew: true,
 	}
-	if err := RenderForm(w, data); err != nil {
+	if err := RenderForm(w, "New Note", data); err != nil {
 		slog.Error("render new form", "err", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
@@ -116,11 +116,10 @@ func (a *App) handleView(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := &TemplateData{
-		Title:    note.Title + " — Notes",
 		Note:     &note,
 		BodyHTML: bodyHTML,
 	}
-	if err := RenderView(w, data); err != nil {
+	if err := RenderView(w, note.Title, data); err != nil {
 		slog.Error("render view", "err", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
@@ -141,13 +140,12 @@ func (a *App) handleEditForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := &TemplateData{
-		Title:   "Edit " + note.Title + " — Notes",
 		Note:    &note,
 		Content: body,
 		Slug:    note.ID,
 		IsNew:   false,
 	}
-	if err := RenderForm(w, data); err != nil {
+	if err := RenderForm(w, "Edit "+note.Title, data); err != nil {
 		slog.Error("render edit form", "err", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}

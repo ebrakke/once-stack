@@ -21,9 +21,12 @@ once-stack/
 ├── pkg/              # Shared libraries used by all apps
 │   ├── health/       # ONCE /up health check handler
 │   ├── server/       # Graceful-shutdown HTTP server wiring
-│   └── storage/      # Persistent data directory abstraction
+│   ├── storage/      # Persistent data directory abstraction
+│   └── ui/           # Shared UI system (renderer, templates, Tailwind CSS)
 ├── build/
 │   └── Dockerfile    # Single standard Dockerfile for ALL apps
+├── docs/             # Developer documentation
+│   └── ui-system.md  # Full UI system usage guide
 ├── justfile          # Development commands (replaces Make)
 ├── go.mod            # Single root Go module
 └── README.md         # User-facing documentation
@@ -127,6 +130,48 @@ Use `server.Run(srv)` from `pkg/server`. It traps `SIGINT`/`SIGTERM`, drains act
 
 ---
 
+## UI System (`pkg/ui`)
+
+Every app uses the shared UI system in `pkg/ui` to get a consistent look
+without duplicating templates, CSS, or rendering code. Each app keeps its
+**own identity** (name in the header, its own URL structure) — there is no
+cross-app navigation shell.
+
+See [`docs/ui-system.md`](./docs/ui-system.md) for the full guide, including:
+
+- How to wire up the renderer in a new app
+- How to mount `ui.AssetsHandler()` at `GET /assets/once/`
+- Which shared component classes to use (buttons, cards, forms, alerts, etc.)
+- When to use component classes vs raw Tailwind utilities
+- Template reuse via `once/header`, `once/footer`, `once/error`, and partials
+- How to add header items via the `once/header-extra` block
+
+### Quick reference
+
+```go
+// In your pkg/<app>/templates.go:
+import "once-stack/pkg/ui"
+
+//go:embed templates/*.html
+var templateFS embed.FS
+
+var renderer *ui.Renderer
+
+func init() {
+    app := ui.App{Name: "MyApp", BaseURL: "/"}
+    r, err := ui.NewRenderer(app, templateFS, "templates/*.html")
+    if err != nil {
+        panic("myapp: failed to create renderer: " + err.Error())
+    }
+    renderer = r
+}
+
+// In your Routes():
+mux.Handle("GET /assets/once/", ui.AssetsHandler())
+```
+
+---
+
 ## Justfile Commands
 
 Install `just` from https://github.com/casey/just. Common tasks:
@@ -138,7 +183,9 @@ Install `just` from https://github.com/casey/just. Common tasks:
 | `just build notes` | Build the Docker image for one app |
 | `just build-all` | Build all app images |
 | `just test` | Run `go test ./...` |
-| `just quality` | Run `fmt`, `vet`, and `test` in sequence |
+| `just quality` | Run `css-check`, `fmt`, `vet`, and `test` in sequence |
+| `just css-build` | Recompile Tailwind CSS from source to static output |
+| `just css-check` | Verify committed CSS matches freshly-built output |
 | `just tidy` | Run `go mod tidy` |
 | `just clean` | Remove locally built Docker images |
 
@@ -146,11 +193,17 @@ Install `just` from https://github.com/casey/just. Common tasks:
 
 ## Adding a New App
 
-1. `mkdir cmd/<name>`
+1. `mkdir cmd/<name>` and optionally `mkdir -p pkg/<name>/templates`.
 2. Write `cmd/<name>/main.go` following the skeleton above.
-3. Ensure `storage.OpenDir("<name>")` is called.
-4. Do not add a separate Dockerfile unless the app has unique system dependencies.
-5. Build: `just build <name>`
+3. Create `pkg/<name>/templates.go` that initialises a `ui.Renderer` (see
+   [`docs/ui-system.md`](./docs/ui-system.md) for a step-by-step example).
+4. Create app templates that wrap content in `{{template "once/header" .}}` and
+   `{{template "once/footer" .}}`.
+5. Mount `ui.AssetsHandler()` at `GET /assets/once/` in your routes.
+6. Ensure `storage.OpenDir("<name>")` is called.
+7. Do not add a separate Dockerfile unless the app has unique system dependencies.
+8. Run `just css-build` if you added new Tailwind utility classes.
+9. Build: `just build <name>`.
 
 ---
 
@@ -169,3 +222,6 @@ Install `just` from https://github.com/casey/just. Common tasks:
 2. **Forgetting `storage.OpenDir()`** — Always open/create your app's storage directory before use.
 3. **CGO in Docker builds** — The Dockerfile uses `CGO_ENABLED=0`. Do not add C dependencies without updating the build.
 4. **Root module imports** — Use `once-stack/pkg/...`, not relative paths like `../../pkg/...`.
+5. **Forgetting `ui.AssetsHandler()`** — Every app must mount the shared assets handler at `GET /assets/once/` or CSS won't load.
+6. **Stale compiled CSS** — If you add new Tailwind utility classes or component classes, run `just css-build` and commit the updated `pkg/ui/static/once.css`. The `just quality` pipeline checks this automatically.
+7. **Template name collisions** — App templates must not define names starting with `once/` (those are reserved for shared templates). `NewRenderer` will panic at startup if a collision is detected.
