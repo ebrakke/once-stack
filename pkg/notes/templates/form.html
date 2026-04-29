@@ -1,30 +1,28 @@
-{{template "header" .}}
+{{template "once/header" .}}
 <div class="max-w-xl mx-auto">
-    <h1 class="text-xl font-bold mb-4">{{if .IsNew}}New Note{{else}}Edit Note{{end}}</h1>
+    <h1 class="text-xl font-bold mb-4">{{if .Data.IsNew}}New Note{{else}}Edit Note{{end}}</h1>
 
-    <form method="POST" action="{{if .IsNew}}/notes{{else}}/notes/{{.Slug}}{{end}}" class="space-y-4">
-        <div>
-            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-            <input type="text" id="title" name="title" value="{{if .Note}}{{.Note.Title}}{{end}}" required
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px] text-base">
+    <form method="POST" action="{{if .Data.IsNew}}/notes{{else}}/notes/{{.Data.Slug}}{{end}}" class="space-y-4">
+        <div class="once-field">
+            <label for="title" class="once-label">Title</label>
+            <input type="text" id="title" name="title" value="{{if .Data.Note}}{{.Data.Note.Title}}{{end}}" required
+                   class="once-input">
         </div>
 
-        <div>
-            <label for="body" class="block text-sm font-medium text-gray-700 mb-1">Body (Markdown)</label>
-            <textarea id="body" name="body" rows="14"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base font-mono">{{.Content}}</textarea>
+        <div class="once-field">
+            <label for="body" class="once-label">Body (Markdown)</label>
+            <textarea id="body" name="body" rows="14" class="once-textarea">{{.Data.Content}}</textarea>
         </div>
 
         <div class="flex items-center gap-3">
-            <button type="submit"
-                    class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors min-h-[44px]">
-                {{if .IsNew}}Create{{else}}Save{{end}}
+            <button type="submit" class="once-btn once-btn-primary">
+                {{if .Data.IsNew}}Create{{else}}Save{{end}}
             </button>
-            <a href="{{if .IsNew}}/{{else}}/notes/{{.Slug}}{{end}}"
-               class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors min-h-[44px]">
+            <a href="{{if .Data.IsNew}}/{{else}}/notes/{{.Data.Slug}}{{end}}"
+               class="once-btn once-btn-secondary">
                 Cancel
             </a>
         </div>
     </form>
 </div>
-{{template "footer" .}}
+{{template "once/footer" .}}

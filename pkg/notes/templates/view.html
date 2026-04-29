@@ -1,21 +1,23 @@
-{{template "header" .}}
+{{template "once/header" .}}
 <article class="max-w-xl mx-auto">
     <div class="flex items-start justify-between mb-4 gap-2">
-        <h1 class="text-xl font-bold break-words">{{.Note.Title}}</h1>
+        <h1 class="text-xl font-bold break-words">{{.Data.Note.Title}}</h1>
         <div class="flex items-center gap-2 shrink-0">
-            <a href="/notes/{{.Note.ID}}/edit" class="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors min-h-[44px]">Edit</a>
+            <a href="/notes/{{.Data.Note.ID}}/edit" class="once-btn once-btn-secondary">Edit</a>
         </div>
     </div>
-    <p class="text-xs text-gray-500 mb-6">{{.Note.UpdatedAt.Format "Jan 2, 2006 3:04 PM"}}</p>
+    <p class="text-xs text-once-muted mb-6">{{.Data.Note.UpdatedAt.Format "Jan 2, 2006 3:04 PM"}}</p>
 
-    <div class="md-content bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-        {{.BodyHTML}}
+    <div class="once-card p-4 sm:p-6">
+        <div class="once-prose">
+            {{.Data.BodyHTML}}
+        </div>
     </div>
 
     <div class="mt-6">
-        <form method="POST" action="/notes/{{.Note.ID}}/delete" onsubmit="return confirm('Delete this note?')">
-            <button type="submit" class="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-red-600 rounded-lg border border-red-200 hover:bg-red-50 transition-colors min-h-[44px]">Delete</button>
+        <form method="POST" action="/notes/{{.Data.Note.ID}}/delete" onsubmit="return confirm('Delete this note?')">
+            <button type="submit" class="once-btn once-btn-danger">Delete</button>
         </form>
     </div>
 </article>
-{{template "footer" .}}
+{{template "once/footer" .}}

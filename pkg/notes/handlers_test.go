@@ -1,6 +1,8 @@
 package notes
 
 import (
+	"bytes"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -285,21 +287,37 @@ func TestApp_Routes_EmptyList(t *testing.T) {
 	}
 }
 
-// TestEmbeddedTemplatesParsed verifies that the embedded templates parse correctly.
+// TestEmbeddedTemplatesParsed verifies that the embedded templates render correctly.
 func TestEmbeddedTemplatesParsed(t *testing.T) {
-	if templates == nil {
-		t.Fatal("templates not initialized")
+	if renderer == nil {
+		t.Fatal("renderer not initialized")
 	}
-	for _, name := range []string{
-		"index.html",
-		"view.html",
-		"form.html",
-		"error.html",
-	} {
-		if tpl := templates.Lookup(name); tpl == nil {
-			t.Errorf("template %q not found in parsed set", name)
+
+	cases := []struct {
+		name string
+		fn   func(io.Writer, *TemplateData) error
+		data *TemplateData
+	}{
+		{"index.html", RenderIndex, &TemplateData{Title: "Notes", Notes: []Note{}}},
+		{"view.html", RenderView, &TemplateData{Title: "View", Note: &Note{ID: "a", Title: "T"}, BodyHTML: "<p>x</p>"}},
+		{"form.html", RenderForm, &TemplateData{Title: "Form", IsNew: true}},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			if err := c.fn(&buf, c.data); err != nil {
+				t.Fatalf("render %s: %v", c.name, err)
+			}
+		})
+	}
+
+	t.Run("app-error.html", func(t *testing.T) {
+		var buf bytes.Buffer
+		if err := RenderError(&buf, "Error", "Something went wrong."); err != nil {
+			t.Fatalf("RenderError: %v", err)
 		}
-	}
+	})
 }
 
 // TestFileOps tests that file creation, reading, and listing work through the handlers.

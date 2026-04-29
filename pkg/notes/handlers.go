@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+
+	"once-stack/pkg/ui"
 )
 
 const maxBodySize = 1 << 20 // 1 MB
@@ -23,6 +25,7 @@ func NewApp(store *Store) *App {
 // Routes are registered on a new ServeMux; /up is NOT registered here.
 func (a *App) Routes() *http.ServeMux {
 	mux := http.NewServeMux()
+	mux.Handle("GET /assets/once/", ui.AssetsHandler())
 	mux.HandleFunc("GET /{$}", a.handleIndex)
 	mux.HandleFunc("GET /new", a.handleNewForm)
 	mux.HandleFunc("POST /notes", a.handleCreate)
@@ -195,12 +198,8 @@ func (a *App) handleDelete(w http.ResponseWriter, r *http.Request) {
 
 // renderError renders a formatted error page with the given HTTP status.
 func renderError(w http.ResponseWriter, status int, title, message string) {
-	data := &TemplateData{
-		Title: title,
-		Error: message,
-	}
 	var buf bytes.Buffer
-	if err := templates.ExecuteTemplate(&buf, "error.html", data); err != nil {
+	if err := RenderError(&buf, title, message); err != nil {
 		slog.Error("render error", "err", err)
 		http.Error(w, title+": "+message, status)
 		return

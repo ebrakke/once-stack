@@ -1,0 +1,5 @@
+HTTP/1.1 303 See Other
+Location: /notes/deployment-checklist-for-v20
+Date: Wed, 29 Apr 2026 19:41:33 GMT
+Content-Length: 0
+

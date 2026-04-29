@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes — Notes</title>
+    <link rel="stylesheet" href="/assets/once/once.css">
+</head>
+<body class="bg-once-bg text-once-text antialiased min-h-screen flex flex-col font-sans">
+    <header class="bg-once-surface border-b border-once-border shadow-once-sm">
+        <div class="max-w-once-content-md mx-auto px-4 h-once-header-height flex items-center justify-between">
+            <a href="/" class="font-semibold text-once-text hover:text-once-primary transition-colors">Notes</a>
+            
+        </div>
+    </header>
+    <main class="flex-1 w-full max-w-once-content-md mx-auto px-4 py-6">
+
+<div class="space-y-4">
+    <div class="flex items-center justify-between">
+        <h1 class="text-xl font-bold">Notes</h1>
+        <a href="/new" class="once-btn once-btn-primary">New Note</a>
+    </div>
+
+    
+    <div class="space-y-2">
+        
+        <div class="once-card once-card-hover">
+            <a href="/notes/api-design-notes" class="block px-4 py-3">
+                <h2 class="font-medium text-once-text">API design notes</h2>
+                <p class="text-xs text-once-muted mt-1">Apr 29, 2026 7:41 PM</p>
+            </a>
+        </div>
+        
+        <div class="once-card once-card-hover">
+            <a href="/notes/deployment-checklist-for-v20" class="block px-4 py-3">
+                <h2 class="font-medium text-once-text">Deployment checklist for v2.0</h2>
+                <p class="text-xs text-once-muted mt-1">Apr 29, 2026 7:41 PM</p>
+            </a>
+        </div>
+        
+    </div>
+    
+</div>
+
+    </main>
+</body>
+</html>
+

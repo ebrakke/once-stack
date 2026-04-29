@@ -5,6 +5,8 @@ import (
 	"embed"
 	"html/template"
 	"io"
+
+	"once-stack/pkg/ui"
 )
 
 // TemplateData holds data for rendering page templates.
@@ -22,37 +24,41 @@ type TemplateData struct {
 //go:embed templates/*.html
 var templateFS embed.FS
 
-// templates is the parsed template tree shared across all renders.
-var templates *template.Template
+var renderer *ui.Renderer
 
 func init() {
-	t, err := template.ParseFS(templateFS, "templates/*.html")
+	app := ui.App{Name: "Notes", BaseURL: "/"}
+	r, err := ui.NewRenderer(app, templateFS, "templates/*.html")
 	if err != nil {
-		panic("notes: failed to parse templates: " + err.Error())
+		panic("notes: failed to create renderer: " + err.Error())
 	}
-	templates = t
+	renderer = r
 }
 
 // RenderIndex renders the note listing page.
 func RenderIndex(w io.Writer, data *TemplateData) error {
-	return templates.ExecuteTemplate(w, "index.html", data)
+	page := ui.Page{Title: data.Title}
+	return renderer.Render(w, "index.html", page, data)
 }
 
 // RenderView renders a single note view page with rendered markdown.
 func RenderView(w io.Writer, data *TemplateData) error {
-	return templates.ExecuteTemplate(w, "view.html", data)
+	page := ui.Page{Title: data.Title}
+	return renderer.Render(w, "view.html", page, data)
 }
 
 // RenderForm renders the new/edit note form page.
 func RenderForm(w io.Writer, data *TemplateData) error {
-	return templates.ExecuteTemplate(w, "form.html", data)
+	page := ui.Page{Title: data.Title}
+	return renderer.Render(w, "form.html", page, data)
 }
 
 // RenderError renders a generic error page.
 func RenderError(w io.Writer, title, message string) error {
+	page := ui.Page{Title: title}
 	data := &TemplateData{
 		Title: title,
 		Error: message,
 	}
-	return templates.ExecuteTemplate(w, "error.html", data)
+	return renderer.Render(w, "app-error.html", page, data)
 }
